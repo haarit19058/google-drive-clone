@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Google Drive Clone</title>
+</head>
+<body>
+  <h1>Upload File</h1>
+  <form id="uploadForm" enctype="multipart/form-data">
+    <input type="file" id="fileInput" name="file" required>
+    <button type="submit">Upload</button>
+  </form>
+
+  <h2>Uploaded Files</h2>
+  <ul id="fileList"></ul>
+
+  <h2><a href="/logout">Logout</a></h2>
+
+  <script>
+    document.getElementById('uploadForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const formData = new FormData();
+      const file = document.getElementById('fileInput').files[0];
+      formData.append('file', file);
+
+      fetch('/upload', {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => response.json())
+      .then(data => {
+        alert('File uploaded: ' + data.file.filename);
+        loadFiles();  // Reload the file list
+      })
+      .catch(error => alert('Error uploading file'));
+    });
+
+    function loadFiles() {
+      fetch('/files')
+        .then(response => response.json())
+        .then(data => {
+          const fileList = document.getElementById('fileList');
+          fileList.innerHTML = '';
+          data.files.forEach(filename => {
+            const listItem = document.createElement('li');
+            const link = document.createElement('a');
+            link.href = `/files/${filename}`;
+            link.textContent = filename;
+            listItem.appendChild(link);
+            fileList.appendChild(listItem);
+          });
+        })
+        .catch(error => alert('Error loading files'));
+    }
+
+    loadFiles();
+  </script>
+</body>
+</html>

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Google Drive Clone</title>
+</head>
+<body>
+  <h1>Welcome, <%= username %></h1>
+  <form method="POST" action="/upload" enctype="multipart/form-data" id="uploadForm">
+        <input type="file" name="files" id="fileInput" webkitdirectory directory multiple required>
+        <input type="hidden" name="folderName" id="folderName">
+        <button type="submit">Upload Folder</button>
+    </form>
+
+  
+  
+  <h2>Files and Folders:</h2>
+  <ul>
+    <% if (currentPath) { %>
+      <li><a href="/?path=<%= currentPath.split('/').slice(0, -1).join('/') %>">⬅️ Go Back</a></li>
+    <% } %>
+    <% items.forEach(item => { %>
+      <li>
+        <% if (item.isFolder) { %>
+          📁 <a href="/?path=<%= currentPath %>/<%= item.name %>"><%= item.name %></a>
+          <a href="/download-folder/<%= item.name %>?path=<%= currentPath %>">📥 Download Folder</a>
+        <% } else { %>
+          📄 <a href="/download/<%= item.name %>?path=<%= currentPath %>"><%= item.name %></a>
+        <% } %>
+      </li>
+    <% }); %>
+  </ul>
+  <form method="POST" action="/logout">
+    <button type="submit">Logout</button>
+  </form>
+
+
+  <script>
+    document.getElementById('fileInput').addEventListener('change', function() {
+        const files = this.files;
+        if (files.length > 0) {
+        const folderPath = files[0].webkitRelativePath.split('/')[0];
+        document.getElementById('folderName').value = folderPath; 
+        }
+    });
+    </script>
+</body>
+</html>
