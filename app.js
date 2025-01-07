@@ -5,6 +5,24 @@ const path = require('path');
 const fs = require('fs');
 const archiver = require('archiver');
 
+
+
+const mongoose = require('mongoose')
+
+async function main(){
+  await mongoose.connect("mongodb://127.0.0.1:27017/gdrive")
+}
+
+main().then((res)=>{
+  console.log("Connected to db")
+})
+.catch((err)=>{console.log(err)})
+
+
+const Users = require("./Models/user.js")
+
+
+
 const app = express();
 
 app.set('view engine', 'ejs');
@@ -55,14 +73,41 @@ app.get('/login', (req, res) => {
   res.send(`
     <form method="POST" action="/login">
       <input type="text" name="username" required>
+      <input type="password" name= "password" required>
+      <button type="submit">Login</button>
+    </form>
+
+    <form method="POST" action="/register">
+      <input type="text" name="username" required>
+      <input type="password" name= "password" required>
       <button type="submit">Login</button>
     </form>
   `);
 });
 
-app.post('/login', (req, res) => {
+app.post("/register",async (req,res)=>{
+  await Users.create({email:req.body.username,password:req.body.password});
+  res.send(
+    `
+    <h1>Login TO your account</h1>
+      <form method="POST" action="/login">
+      <input type="text" name="username" required>
+      <input type="password" name= "password" required>
+      <button type="submit">Login</button>
+    </form>
+    `)
+})
+
+app.post('/login',async (req, res) => {
+
+  const user = await Users.findOne({ email: req.body.username });
+  if(user == null){
+    res.status(404).send("user not found");
+  }
+  console.log(user);
+
   const username = req.body.username;
-  if (username) {
+  if (username && user.password == req.body.password) {
     req.session.username = username;
     res.redirect('/');
   } else {
