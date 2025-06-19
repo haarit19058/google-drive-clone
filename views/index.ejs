@@ -4,46 +4,421 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Google Drive Clone</title>
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Google Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: #f8f9fa;
+      color: #202124;
+      line-height: 1.4;
+    }
+
+    /* Header */
+    .header {
+      background: white;
+      border-bottom: 1px solid #dadce0;
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+    }
+
+    .header h1 {
+      font-size: 22px;
+      font-weight: 400;
+      color: #5f6368;
+    }
+
+    .logout-btn {
+      background: transparent;
+      border: 1px solid #dadce0;
+      border-radius: 4px;
+      padding: 8px 16px;
+      cursor: pointer;
+      font-size: 14px;
+      color: #3c4043;
+      transition: all 0.2s;
+    }
+
+    .logout-btn:hover {
+      background: #f8f9fa;
+      border-color: #5f6368;
+    }
+
+    /* Main Container */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    /* Upload Section */
+    .upload-section {
+      background: white;
+      border-radius: 8px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+    }
+
+    .upload-area {
+      border: 2px dashed #dadce0;
+      border-radius: 8px;
+      padding: 32px;
+      text-align: center;
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+
+    .upload-area:hover {
+      border-color: #4285f4;
+      background: #f8f9ff;
+    }
+
+    .upload-area.dragover {
+      border-color: #4285f4;
+      background: #e8f0fe;
+    }
+
+    .upload-icon {
+      font-size: 48px;
+      color: #5f6368;
+      margin-bottom: 16px;
+    }
+
+    .upload-text {
+      font-size: 16px;
+      color: #5f6368;
+      margin-bottom: 16px;
+    }
+
+    #fileInput {
+      display: none;
+    }
+
+    .upload-btn {
+      background: #4285f4;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 10px 24px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .upload-btn:hover {
+      background: #3367d6;
+    }
+
+    .upload-btn:disabled {
+      background: #dadce0;
+      cursor: not-allowed;
+    }
+
+    /* Files Section */
+    .files-section {
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+    }
+
+    .section-header {
+      padding: 16px 24px;
+      border-bottom: 1px solid #dadce0;
+      font-size: 16px;
+      font-weight: 500;
+      color: #202124;
+    }
+
+    .files-list {
+      list-style: none;
+    }
+
+    .file-item {
+      display: flex;
+      align-items: center;
+      padding: 12px 24px;
+      border-bottom: 1px solid #f1f3f4;
+      transition: background 0.2s;
+      cursor: pointer;
+    }
+
+    .file-item:last-child {
+      border-bottom: none;
+    }
+
+    .file-item:hover {
+      background: #f8f9fa;
+    }
+
+    .file-icon {
+      margin-right: 16px;
+      font-size: 24px;
+      width: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .folder-icon {
+      color: #4285f4;
+    }
+
+    .file-icon-doc {
+      color: #34a853;
+    }
+
+    .back-icon {
+      color: #5f6368;
+    }
+
+    .file-name {
+      flex: 1;
+      font-size: 14px;
+      color: #202124;
+      text-decoration: none;
+    }
+
+    .file-name:hover {
+      text-decoration: none;
+      color: #1a73e8;
+    }
+
+    .file-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .action-btn {
+      background: transparent;
+      border: none;
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #5f6368;
+      transition: all 0.2s;
+      text-decoration: none;
+      font-size: 18px;
+    }
+
+    .action-btn:hover {
+      background: #e8eaed;
+      color: #202124;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 48px 24px;
+      color: #5f6368;
+    }
+
+    .empty-state .material-icons {
+      font-size: 72px;
+      margin-bottom: 16px;
+      opacity: 0.5;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .container {
+        padding: 16px;
+      }
+      
+      .header {
+        padding: 12px 16px;
+      }
+      
+      .file-item {
+        padding: 16px;
+      }
+      
+      .file-name {
+        font-size: 16px;
+      }
+      
+      .upload-area {
+        padding: 24px 16px;
+      }
+    }
+
+    /* Loading animation */
+    .uploading {
+      opacity: 0.7;
+      pointer-events: none;
+    }
+
+    .spinner {
+      border: 2px solid #f3f3f3;
+      border-top: 2px solid #4285f4;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      animation: spin 1s linear infinite;
+      display: inline-block;
+      margin-right: 8px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
 </head>
 <body>
-  <h1>Welcome, <%= username %></h1>
-  <form method="POST" action="/upload" enctype="multipart/form-data" id="uploadForm">
+  <!-- Header -->
+  <div class="header">
+    <h1>Welcome, <%= username %></h1>
+    <form method="POST" action="/logout" style="margin: 0;">
+      <button type="submit" class="logout-btn">Logout</button>
+    </form>
+  </div>
+
+  <!-- Main Container -->
+  <div class="container">
+    <!-- Upload Section -->
+    <div class="upload-section">
+      <form method="POST" action="/upload" enctype="multipart/form-data" id="uploadForm">
+        <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+          <div class="upload-icon">
+            <i class="material-icons">cloud_upload</i>
+          </div>
+          <div class="upload-text">
+            Click here or drag folder to upload
+          </div>
+          <button type="button" class="upload-btn" onclick="document.getElementById('fileInput').click()">
+            Select Folder
+          </button>
+        </div>
         <input type="file" name="files" id="fileInput" webkitdirectory directory multiple required>
         <input type="hidden" name="folderName" id="folderName">
-        <button type="submit">Upload Folder</button>
-    </form>
+      </form>
+    </div>
 
-  
-  
-  <h2>Files and Folders:</h2>
-  <ul>
-    <% if (currentPath) { %>
-      <li><a href="/?path=<%= currentPath.split('/').slice(0, -1).join('/') %>">⬅️ Go Back</a></li>
-    <% } %>
-    <% items.forEach(item => { %>
-      <li>
-        <% if (item.isFolder) { %>
-          📁 <a href="/?path=<%= currentPath %>/<%= item.name %>"><%= item.name %></a>
-          <a href="/download-folder/<%= item.name %>?path=<%= currentPath %>">📥 Download Folder</a>
-        <% } else { %>
-          📄 <a href="/download/<%= item.name %>?path=<%= currentPath %>"><%= item.name %></a>
-        <% } %>
-      </li>
-    <% }); %>
-  </ul>
-  <form method="POST" action="/logout">
-    <button type="submit">Logout</button>
-  </form>
-
+    <!-- Files Section -->
+    <div class="files-section">
+      <div class="section-header">
+        Files and Folders
+      </div>
+      
+      <% if (items && items.length > 0) { %>
+        <ul class="files-list">
+          <% if (currentPath) { %>
+          <li class="file-item">
+            <div class="file-icon back-icon">
+              <i class="material-icons">arrow_back</i>
+            </div>
+            <a href="/?path=<%= currentPath.split('/').slice(0, -1).join('/') %>" class="file-name">
+              Go Back
+            </a>
+          </li>
+          <% } %>
+          
+          <% items.forEach(item => { %>
+          <li class="file-item">
+            <div class="file-icon <%= item.isFolder ? 'folder-icon' : 'file-icon-doc' %>">
+              <i class="material-icons">
+                <%= item.isFolder ? 'folder' : 'description' %>
+              </i>
+            </div>
+            
+            <% if (item.isFolder) { %>
+              <a href="/?path=<%= currentPath %>/<%= item.name %>" class="file-name">
+                <%= item.name %>
+              </a>
+              <div class="file-actions">
+                <a href="/download-folder/<%= item.name %>?path=<%= currentPath %>" 
+                   class="action-btn" title="Download Folder">
+                  <i class="material-icons">download</i>
+                </a>
+              </div>
+            <% } else { %>
+              <span class="file-name"><%= item.name %></span>
+              <div class="file-actions">
+                <a href="/download/<%= item.name %>?path=<%= currentPath %>" 
+                   class="action-btn" title="Download File">
+                  <i class="material-icons">download</i>
+                </a>
+              </div>
+            <% } %>
+          </li>
+          <% }); %>
+        </ul>
+      <% } else { %>
+        <div class="empty-state">
+          <i class="material-icons">folder_open</i>
+          <div>No files or folders found</div>
+          <div style="font-size: 12px; margin-top: 8px;">Upload a folder to get started</div>
+        </div>
+      <% } %>
+    </div>
+  </div>
 
   <script>
-    document.getElementById('fileInput').addEventListener('change', function() {
-        const files = this.files;
-        if (files.length > 0) {
+    const fileInput = document.getElementById('fileInput');
+    const uploadForm = document.getElementById('uploadForm');
+    const uploadArea = document.querySelector('.upload-area');
+    const uploadBtn = document.querySelector('.upload-btn');
+
+    // Handle file selection
+    fileInput.addEventListener('change', function() {
+      const files = this.files;
+      if (files.length > 0) {
         const folderPath = files[0].webkitRelativePath.split('/')[0];
-        document.getElementById('folderName').value = folderPath; 
-        }
+        document.getElementById('folderName').value = folderPath;
+        
+        // Auto-submit form
+        uploadBtn.innerHTML = '<div class="spinner"></div>Uploading...';
+        uploadBtn.disabled = true;
+        uploadForm.classList.add('uploading');
+        uploadForm.submit();
+      }
     });
-    </script>
+
+    // Drag and drop functionality
+    uploadArea.addEventListener('dragover', function(e) {
+      e.preventDefault();
+      this.classList.add('dragover');
+    });
+
+    uploadArea.addEventListener('dragleave', function(e) {
+      e.preventDefault();
+      this.classList.remove('dragover');
+    });
+
+    uploadArea.addEventListener('drop', function(e) {
+      e.preventDefault();
+      this.classList.remove('dragover');
+      
+      const items = e.dataTransfer.items;
+      if (items) {
+        for (let i = 0; i < items.length; i++) {
+          const item = items[i].webkitGetAsEntry();
+          if (item && item.isDirectory) {
+            // Trigger file input for folder
+            fileInput.click();
+            break;
+          }
+        }
+      }
+    });
+
+    // Prevent default drag behavior on document
+    document.addEventListener('dragover', e => e.preventDefault());
+    document.addEventListener('drop', e => e.preventDefault());
+  </script>
 </body>
 </html>
